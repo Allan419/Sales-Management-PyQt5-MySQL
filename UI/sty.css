@@ -1,0 +1,31 @@
+
+QMainWindow#MainWindow {
+    background-color: rgba(255, 255, 255, 0.822);
+}
+
+QStackedWidget#stackedWidget{
+    background-color: rgba(255, 255, 255, 0.219);
+}
+
+
+QLabel{
+    font-size: 18px;
+    color: solid white;
+}
+
+QGroupBox{
+    border: 0.1px white;
+}
+
+QLineEdit{
+    border: 1px solid rgba(41, 39, 39, 0.5);
+    border-radius: 5px;
+    padding: 0 8px;
+    background-color: rgb(255, 255, 255);
+    font-family: sans-serif;
+    font-size: 14pt;
+}
+
+QStatusBar#statusbar{
+    background-color: rgb(153, 153, 153);
+} 
