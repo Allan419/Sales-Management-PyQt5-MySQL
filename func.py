@@ -1,18 +1,24 @@
 import os
 import sys
+sys.path.append("E:\\Business\\SaleManagement\\Sales-Management-PyQt5-MySQL\\UI")
+sys.path.append("E:\\Business\\SaleManagement\\Sales-Management-PyQt5-MySQL")
+    
 import json
 from account import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 import mysql.connector
 
 provinceList = []
-with open("E:\\Business\\UI\\location.json", 'rb') as listChina:
-    provinces = json.loads(listChina.read())
-    for province in provinces:
-        provinceList.append(province['text'])
-listChina.close()
+location_file_path = "location.json"
+try:
+    with open(location_file_path, 'rb') as listChina:
+        provinces = json.loads(listChina.read())
+        for province in provinces:
+            provinceList.append(province['text'])
+except FileNotFoundError:
+    print(f"{location_file_path} Not Found!")
 
-print(provinceList)
+# print(provinceList)
 
 class dbConnect:
     def __init__(self, dhost, duser, dpasswd, ddatabase, dport):
@@ -35,56 +41,61 @@ class dbConnect:
         print("Hey")
 
 class dbOperate:
-    def __init__(self, connection, colQuery, key):
+    def __init__(self, connection):
         self.connection = connection
         self.cur = self.connection.cursor()
-        self.colQuery = colQuery
-        self.key = key
+        # self.colQuery = colQuery
+        # self.key = key
 
-    def query(self):
+    def query(self, colQuery, key):
         #ui.textResult.setText("")
-        print("SELECT * FROM customer WHERE %s = %s" % (self.colQuery, self.key))
-        self.cur.execute("SELECT * FROM customer WHERE %s = '%s'" % (self.colQuery, self.key))
+        #print("SELECT * FROM customer WHERE %s = %s" % (colQuery, key))
+        #print(key)
+        ui.textResult.clear()
+        if key == '':
+            self.cur.execute("SELECT * FROM customer")
+        else:
+            self.cur.execute("SELECT * FROM customer WHERE %s = '%s'" % (colQuery, key))
         cols = self.cur.fetchall()
         for col in cols:
-            pass
-            ui.tableResult.append(col[0] +'  '+ col[1] +'  '+ col[2])
+            ui.textResult.append(col[0] +'  '+ col[1] +'  '+ col[2])
 
-    def insert(self):
-        pass
-        #self.cur.execute()
+    def insert_customer(self, name, customerID, province, city, address, zip, phone):
+        #print(f"'{customerID}'")
+        self.cur.execute(f"INSERT INTO `account`.`customer` (`personID`, `name`, `province`, `city`, `address`, `zip`, `phone`) VALUES ('{customerID}','{name}','{province}','{city}','{address}','{zip}','{phone}');")
+        self.connection.commit()
 
 class myWindow(Ui_MainWindow):
+    
     def __init__(self):
         self.mydb = dbConnect("localhost", "root", "Zzl33221144", "account", 3306)
         self.conn = self.mydb.con()
+        self.ins = dbOperate(self.conn)
      
     def setupUi(self, MainWindow):
         Ui_MainWindow.setupUi(self, MainWindow)
 
         MainWindow.setWindowOpacity(0.97)
-        path = os.path.abspath('account.py')
-        print(path)
-        #try:
-        
-        #except:
-        #    print("Error!")
+
         ###  UI STYLESHEET  ###
-        with open("E:\\Business\\UI\\sty.css", "r") as sty:
+        css_file_name = "sty.css"
+        with open(css_file_name, "r") as sty:
             MainWindow.setStyleSheet(sty.read())
-            print("Alles klar")
-        sty.close()
-        #MainWindow.setStyleSheet(open("E:\\Business\\UI\\newsty.css", "r").read())
+            #print("Alles klar")
         ###  INPUT MASK  ###
-        #self.textCustomerID.setInputMask('000000000000000000;')
-        #self.textZip.setInputMask('000000;')
-        #self.textPhone.setInputMask('00000000000;')
+        self.textCustomerID.setMaxLength(18)
+        self.textZip.setMaxLength(6)
+        self.textPhone.setMaxLength(11)
+        # self.textCustomerID.setInputMask('000000000000000000;')
+        # self.textZip.setInputMask('000000;')
+        # self.textPhone.setInputMask('00000000000;')
 
         ###  事件调用功能  ###
         self.ButtonSubmit.clicked.connect(self.submitToSQL) #首页Submit按钮
         self.ButtonQuery.clicked.connect(self.query) #第二页查询Go按钮
         self.actionNewRecord.triggered.connect(self.pageNewRecord)
         self.actionQuery.triggered.connect(self.pageQuery)
+        
                 #===  调用Calendar  ==#
         self.calendarWidget.hide() #默认隐藏
         self.textDate.mousePressEvent = self.showCalendar #鼠标点击TextEdit显示Calendar
@@ -92,20 +103,26 @@ class myWindow(Ui_MainWindow):
         self.textDate.textChanged.connect(self.hideCalendar) #日期输入TextEdit隐藏Calendar
         #print(self.comboQuery.currentText())
 
-        self.tableResult.setShowGrid(True)
-        #self.comboProvince.mousePressEvent = self.loadprovince()
+        #self.tableResult.setShowGrid(True)
         self.comboProvince.addItems(provinceList)
-
+        self.comboProvince.currentTextChanged.connect(self.loadcity)
+        self.statusbar.showMessage("")
+       
         
         #print(self.comboProvince.currentTextChanged)
-
     def loadcity(self):
-        print(provinceList.index(self.comboProvince.currentText()))
+        with open("location.json", 'rb') as f:
+            data = json.loads(f.read())
+            cityList = []
+            self.comboCity.clear()
+            for city in data[provinceList.index(self.comboProvince.currentText())]['children']:
+                cityList.append(city["text"])
+            self.comboCity.addItems(cityList)
         
 
     def query(self):
-        ins = dbOperate(self.conn, self.comboQuery.currentText(), self.TextKeyWord.text())
-        ins.query()
+        # ins = dbOperate(self.conn)
+        self.ins.query(self.comboQuery.currentText(), self.TextKeyWord.text())
         
 
     def retranslateUi(self, MainWindow):
@@ -143,14 +160,16 @@ class myWindow(Ui_MainWindow):
         textZip = self.textZip.text() #邮编
         textPhone = self.textPhone.text() #手机
 
-        print(textName + "\n" 
-                + textCustomerID + "\n"
-                + textProvince + "\n"
-                + textCity + "\n"
-                + textAddress + "\n"
-                + textZip + "\n"
-                + textPhone + "\n")
-        
+        # print(textName + "\n" 
+        #         + textCustomerID + "\n"
+        #         + textProvince + "\n"
+        #         + textCity + "\n"
+        #         + textAddress + "\n"
+        #         + textZip + "\n"
+        #         + textPhone + "\n")
+
+        self.ins.insert_customer(textName, textCustomerID, textProvince, textCity, textAddress, textZip, textPhone)
+        self.statusbar.showMessage("Successfully inserted one record.")
         self.pageEntry.hide()
         self.pageResult.show()               
 

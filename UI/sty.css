@@ -1,16 +1,21 @@
+*{
+    font-family: century gothic;
+    font-size: 15px;
+}
 
 QMainWindow#MainWindow {
     background-color: rgba(255, 255, 255, 0.822);
+    /* background-image: url(/UI/bg.jpg); */
 }
 
-QStackedWidget#stackedWidget{
-    background-color: rgba(255, 255, 255, 0.219);
+QGroupBox{
+    border-radius: 5px;
+    background-color: rgba(172, 206, 236, 0.548);
+    /* background-blend-mode: luminosity; */
 }
 
-
-QLabel{
-    font-size: 18px;
-    color: solid white;
+#labelCustomerInfo, #labelOrderInfo{
+    font-size: 19px;
 }
 
 QGroupBox{
@@ -20,10 +25,20 @@ QGroupBox{
 QLineEdit{
     border: 1px solid rgba(41, 39, 39, 0.5);
     border-radius: 5px;
-    padding: 0 8px;
     background-color: rgb(255, 255, 255);
-    font-family: sans-serif;
+    font-family: serif;
     font-size: 14pt;
+}
+
+QTextEdit{
+    border: 1px solid rgba(41, 39, 39, 0.5);
+    border-radius: 5px;
+    font-family: serif;
+}
+
+QComboBox{
+    border: 1px solid rgba(41, 39, 39, 0.5);
+    border-radius: 5px;
 }
 
 QStatusBar#statusbar{
