@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'e:\Business\SaleManagement\Sales-Management-PyQt5-MySQL\UI\untitled.ui'
+# Form implementation generated from reading ui file 'e:\Business\SaleManagement\Sales-Management-PyQt5-MySQL\UI\new.ui'
 #
 # Created by: PyQt5 UI code generator 5.12.2
 #
@@ -414,6 +414,16 @@ class Ui_mainWindow(object):
         self.tab.setObjectName("tab")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.tab)
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.tableWidgetResult = QtWidgets.QTableWidget(self.tab)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(14)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.tableWidgetResult.sizePolicy().hasHeightForWidth())
+        self.tableWidgetResult.setSizePolicy(sizePolicy)
+        self.tableWidgetResult.setObjectName("tableWidgetResult")
+        self.tableWidgetResult.setColumnCount(0)
+        self.tableWidgetResult.setRowCount(0)
+        self.gridLayout_2.addWidget(self.tableWidgetResult, 0, 1, 1, 1)
         self.groupBox_3 = QtWidgets.QGroupBox(self.tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(3)
@@ -451,14 +461,6 @@ class Ui_mainWindow(object):
         spacerItem6 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_2.addItem(spacerItem6)
         self.gridLayout_2.addWidget(self.groupBox_3, 0, 0, 1, 1)
-        self.tableViewResult = QtWidgets.QTableView(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(14)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.tableViewResult.sizePolicy().hasHeightForWidth())
-        self.tableViewResult.setSizePolicy(sizePolicy)
-        self.tableViewResult.setObjectName("tableViewResult")
-        self.gridLayout_2.addWidget(self.tableViewResult, 0, 1, 1, 1)
         self.tabQuery.addTab(self.tab, "")
         self.gridLayout_3.addWidget(self.tabQuery, 0, 0, 1, 1)
         mainWindow.setCentralWidget(self.centralwidget)
