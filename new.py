@@ -188,11 +188,7 @@ class myWindow(Ui_mainWindow, QtWidgets.QWidget):
         self.tableWidgetModify.setColumnCount(8)
         self.tableWidgetModify.setRowCount(1)
         self.tableWidgetModify.setHorizontalHeaderLabels(['ID', 'Name', 'Province', 'City','Address', 'Zip', 'Phone', 'Comment'])
-        
-        for i in range(8):
-            temp = self.tableWidgetResult.item(row, i).text()
-            self.tableWidgetModify.setItem(0, i, QtWidgets.QTableWidgetItem(temp))
-        self.tableWidgetModify.setVerticalHeaderLabels([f'{row + 1}'])    
+          
         # print("CURRENT ITEM",self.tableWidgetModify.currentItem())
         self.buttonModifyYes = QtWidgets.QPushButton()
         self.buttonModifyNo = QtWidgets.QPushButton()
@@ -207,12 +203,16 @@ class myWindow(Ui_mainWindow, QtWidgets.QWidget):
         layout.addWidget(self.tableWidgetModify)
         layout.addLayout(buttons)
         self.editDialog.setLayout(layout)
+        for i in range(8):
+            temp = self.tableWidgetResult.item(row, i).text()
+            self.tableWidgetModify.setItem(0, i, QtWidgets.QTableWidgetItem(temp))
+        self.tableWidgetModify.setVerticalHeaderLabels([f'{row + 1}'])  
         self.editDialog.exec()
 
     def update(self):
         updateInfo = QtWidgets.QMessageBox.information(self, 'Update', 'Are you sure to update the record?', QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         if updateInfo == QtWidgets.QMessageBox.Yes:
-            print(self.tableWidgetModify.item(0, 1).text())
+            # print(self.tableWidgetModify.item(0, 1).text())
             self.db.update(self.tableWidgetModify.item(0, 0).text(),
                            self.tableWidgetModify.item(0, 1).text(),
                            self.tableWidgetModify.item(0, 2).text(),
@@ -222,8 +222,13 @@ class myWindow(Ui_mainWindow, QtWidgets.QWidget):
                            self.tableWidgetModify.item(0, 6).text(),
                            self.tableWidgetModify.item(0, 7).text())
             self.editDialog.close()
-            # if self.textKeyWord != "" and self.tableWidgetModify.item(0, 1).text() != self.tableWidgetResult.item(self.doubleClickedRow, 2):
-            #     self.textKeyWord.setText(self.tableWidgetModify.item(0, 1).text())
+            # print(self.comboQueryList.index(self.comboQuery.currentText()))
+            # print(self.comboQuery.currentIndex())
+            if self.textKeyWord.text() != "" and self.tableWidgetModify.item(0, self.comboQuery.currentIndex()).text() != self.tableWidgetResult.item(self.doubleClickedRow, self.comboQuery.currentIndex()).text():
+                self.textKeyWord.setText(self.tableWidgetModify.item(0, self.comboQuery.currentIndex()).text())
+                # print("Modify",self.tableWidgetModify.item(0, 1).text())
+                # print("Result", self.tableWidgetResult.item(self.doubleClickedRow, 1).text())
+                # print("NOT EQUAL")
             self.query()
             self.statusbar.showMessage('Successfully updated one record!')
         else:
