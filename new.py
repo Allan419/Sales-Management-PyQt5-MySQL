@@ -106,13 +106,15 @@ class Database():
             ui.statusbar.showMessage("Successfully updated 1 record")
         
 class myWindow(Ui_mainWindow, QtWidgets.QWidget):
+    
+    comboQueryList = ['ID', 'Name', 'Province', 'City', 'Address', 'Zip', 'Phone']
+    comboItemList = ['商品1', '商品2', '商品3']
+    comboQuantityList = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
+    
     def __init__(self):
         super().__init__()
         self.db = Database()
         self.cusInfo = customerData()
-        self.comboQueryList = ['PersonId', 'Name', 'Province', 'City', 'Address', 'Zip', 'Phone']
-        self.comboItemList = ['商品1', '商品2', '商品3']
-        self.comboQuantityList = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
         
     def setupUi(self, MainWindow):
         Ui_mainWindow.setupUi(self, MainWindow)
@@ -176,6 +178,8 @@ class myWindow(Ui_mainWindow, QtWidgets.QWidget):
         self.clickedColumn = column
         
     def editCellDialog(self, row, column):
+        self.doubleClickedRow = row
+        self.doubleClickedColumn = column
         print(row, column)
         self.editDialog = QtWidgets.QDialog()
         self.editDialog.resize(600,150)
@@ -204,17 +208,8 @@ class myWindow(Ui_mainWindow, QtWidgets.QWidget):
         layout.addLayout(buttons)
         self.editDialog.setLayout(layout)
         self.editDialog.exec()
-        
-    def columnmodified(self, row, column):
-        pass
-        # self.changedColumn = self.tableWidgetModify.currentColumn()
-        # self.changedItem = self.tableWidgetResult.itemAt(self.changedRow, self.changedColumn).text()
-        # self.changedCellList.append([self.changedRow, self.changedColumn, self.changedItem])
-        # self.changedCellList.append([self.changedRow, self.changedColumn])
-        # print(self.changedCellList)
 
     def update(self):
-        # self.changedCellList = []
         updateInfo = QtWidgets.QMessageBox.information(self, 'Update', 'Are you sure to update the record?', QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         if updateInfo == QtWidgets.QMessageBox.Yes:
             print(self.tableWidgetModify.item(0, 1).text())
@@ -227,6 +222,8 @@ class myWindow(Ui_mainWindow, QtWidgets.QWidget):
                            self.tableWidgetModify.item(0, 6).text(),
                            self.tableWidgetModify.item(0, 7).text())
             self.editDialog.close()
+            # if self.textKeyWord != "" and self.tableWidgetModify.item(0, 1).text() != self.tableWidgetResult.item(self.doubleClickedRow, 2):
+            #     self.textKeyWord.setText(self.tableWidgetModify.item(0, 1).text())
             self.query()
             self.statusbar.showMessage('Successfully updated one record!')
         else:
