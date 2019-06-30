@@ -4,7 +4,7 @@ sys.path.append("E:\\Business\\SaleManagement\\Sales-Management-PyQt5-MySQL\\UI"
 sys.path.append("E:\\Business\\SaleManagement\\Sales-Management-PyQt5-MySQL")
     
 import json
-from Ui_new import Ui_mainWindow
+from UI.Ui_new import Ui_mainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets, QtSql
 import mysql.connector
 import numpy as np
@@ -86,19 +86,33 @@ class Database():
             self.connect.commit()
             ui.statusbar.showMessage("Successfully inserted one record.") 
             
-    def delete(self):
+    def delete(self, personID):
         try:
-            pass
-        except:
-            pass
+            self.cursor.execute(f"DELETE FROM `account`.`customer` WHERE (`personID` = '{personID}');")
+        except Exception as err:
+            ui.statusbar.showMessage(f"Error occured while deleting record: {err}")
         else:
-            pass
+            self.connect.commit()
+            ui.statusbar.showMessage("Successfully deleted 1 record")
+    
+    def update(self, personID, name, province, city, address, zip, phone, comment):
+        # UPDATE `account`.`customer` SET `name` = '张三1', `province` = '湖南1' WHERE (`personID` = '200000000000000000');
+        try:
+            self.cursor.execute(f"UPDATE `account`.`customer` SET `name` = '{name}', `province` = '{province}', `city` = '{city}', `address` = '{address}', `zip` = '{zip}', `phone` = '{phone}', `comment` = '{comment}' WHERE (`personID` = '{personID}')")
+        except Exception as err:
+            ui.statusbar.showMessage(f"Error occured while updating record: {err}")
+        else:
+            self.connect.commit()
+            ui.statusbar.showMessage("Successfully updated 1 record")
         
 class myWindow(Ui_mainWindow, QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.db = Database()
         self.cusInfo = customerData()
+        self.comboQueryList = ['PersonId', 'Name', 'Province', 'City', 'Address', 'Zip', 'Phone']
+        self.comboItemList = ['商品1', '商品2', '商品3']
+        self.comboQuantityList = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
         
     def setupUi(self, MainWindow):
         Ui_mainWindow.setupUi(self, MainWindow)
@@ -119,14 +133,22 @@ class myWindow(Ui_mainWindow, QtWidgets.QWidget):
         ###  事件调用功能  ###
         self.buttonSubmit.clicked.connect(self.submitToSQL) #首页Submit按钮
         self.buttonQuery.clicked.connect(self.query) #第二页查询Go按钮
+        self.buttonDelete.clicked.connect(self.delete)#第二页Delete按钮
         self.comboProvince.addItems(self.cusInfo.getProvince())
         self.comboProvince.currentTextChanged.connect(lambda: self.comboCity.addItems(self.cusInfo.getCity()))
+        self.tableWidgetResult.cellClicked.connect(self.cellClicked)
+        self.tableWidgetResult.cellDoubleClicked.connect(self.editCellDialog)
+        
+        ###
+        self.comboItem.addItems(self.comboItemList)
+        self.comboQuantity.addItems(self.comboQuantityList)
+        self.comboQuery.addItems(self.comboQueryList)
         
     def display(self):
         print("self.ROWCOUNT", self.db.rowCount)
-        self.tableWidgetResult.setHorizontalHeaderLabels(['ID', 'Name', 'Province', 'City','Address', 'Zip', 'Phone', 'Comment'])
         self.tableWidgetResult.setColumnCount(8)
         self.tableWidgetResult.setRowCount(self.db.rowCount)
+        self.tableWidgetResult.setHorizontalHeaderLabels(['ID', 'Name', 'Province', 'City','Address', 'Zip', 'Phone', 'Comment'])
         ### 设置列宽 ###
         self.tableWidgetResult.setColumnWidth(0,170)
         self.tableWidgetResult.setColumnWidth(1,70)
@@ -140,6 +162,7 @@ class myWindow(Ui_mainWindow, QtWidgets.QWidget):
         self.tableWidgetResult.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)#禁止编辑
         # self.tableWidgetResult.resizeColumnsToContents()#自动根据内容调整列宽
         # self.tableWidgetResult.resizeRowsToContents()#自动根据内容调整行高
+        
         for row in range(self.db.rowCount):
             for col in range(8):
                 self.tableWidgetResult.setItem(row,col,QtWidgets.QTableWidgetItem(self.db.queryResult[row][col]))
@@ -147,8 +170,79 @@ class myWindow(Ui_mainWindow, QtWidgets.QWidget):
     def query(self):
         self.db.query(self.comboQuery.currentText(), self.textKeyWord.text())
         self.display()
-    
-    ### BUTTON FUNCTIONS ###
+        
+    def cellClicked(self, row, column):
+        self.clickedRow = row
+        self.clickedColumn = column
+        
+    def editCellDialog(self, row, column):
+        print(row, column)
+        self.editDialog = QtWidgets.QDialog()
+        self.editDialog.resize(600,150)
+        self.editDialog.setWindowTitle('Modify the record')
+        self.tableWidgetModify = QtWidgets.QTableWidget()
+        self.tableWidgetModify.setColumnCount(8)
+        self.tableWidgetModify.setRowCount(1)
+        self.tableWidgetModify.setHorizontalHeaderLabels(['ID', 'Name', 'Province', 'City','Address', 'Zip', 'Phone', 'Comment'])
+        
+        for i in range(8):
+            temp = self.tableWidgetResult.item(row, i).text()
+            self.tableWidgetModify.setItem(0, i, QtWidgets.QTableWidgetItem(temp))
+        self.tableWidgetModify.setVerticalHeaderLabels([f'{row + 1}'])    
+        # print("CURRENT ITEM",self.tableWidgetModify.currentItem())
+        self.buttonModifyYes = QtWidgets.QPushButton()
+        self.buttonModifyNo = QtWidgets.QPushButton()
+        self.buttonModifyYes.setText('Update')
+        self.buttonModifyNo.setText('Cancel')
+        self.buttonModifyYes.clicked.connect(self.update)
+        self.buttonModifyNo.clicked.connect(self.editDialog.close)
+        buttons = QtWidgets.QHBoxLayout()
+        buttons.addWidget(self.buttonModifyYes)
+        buttons.addWidget(self.buttonModifyNo)
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.tableWidgetModify)
+        layout.addLayout(buttons)
+        self.editDialog.setLayout(layout)
+        self.editDialog.exec()
+        
+    def columnmodified(self, row, column):
+        pass
+        # self.changedColumn = self.tableWidgetModify.currentColumn()
+        # self.changedItem = self.tableWidgetResult.itemAt(self.changedRow, self.changedColumn).text()
+        # self.changedCellList.append([self.changedRow, self.changedColumn, self.changedItem])
+        # self.changedCellList.append([self.changedRow, self.changedColumn])
+        # print(self.changedCellList)
+
+    def update(self):
+        # self.changedCellList = []
+        updateInfo = QtWidgets.QMessageBox.information(self, 'Update', 'Are you sure to update the record?', QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if updateInfo == QtWidgets.QMessageBox.Yes:
+            print(self.tableWidgetModify.item(0, 1).text())
+            self.db.update(self.tableWidgetModify.item(0, 0).text(),
+                           self.tableWidgetModify.item(0, 1).text(),
+                           self.tableWidgetModify.item(0, 2).text(),
+                           self.tableWidgetModify.item(0, 3).text(),
+                           self.tableWidgetModify.item(0, 4).text(),
+                           self.tableWidgetModify.item(0, 5).text(),
+                           self.tableWidgetModify.item(0, 6).text(),
+                           self.tableWidgetModify.item(0, 7).text())
+            self.editDialog.close()
+            self.query()
+            self.statusbar.showMessage('Successfully updated one record!')
+        else:
+            self.statusbar.showMessage('Abort Updating!')
+        
+        
+    def delete(self):
+        # print(f"ClickedRow: {self.clickedRow}, ClickedColumn: {self.clickedColumn}")
+        delWarning = QtWidgets.QMessageBox.warning(self, 'Warning', 'Are you sure to delete the record?', QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if delWarning == QtWidgets.QMessageBox.Yes:
+            self.db.delete(self.tableWidgetResult.item(self.clickedRow, self.clickedColumn).text())
+            self.query()
+            self.statusbar.showMessage("Successfully deleted one record")
+        else:
+            self.statusbar.showMessage("Abort deleting")
+        
     def submitToSQL(self):
         if self.textName.text() == "":
             self.statusbar.showMessage("Please fill out the name!")

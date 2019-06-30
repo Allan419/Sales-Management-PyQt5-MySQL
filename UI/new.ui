@@ -1025,43 +1025,7 @@ QTableView{
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="comboQuery">
-               <item>
-                <property name="text">
-                 <string>Name</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>PersonID</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Province</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>City</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Address</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Zip</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Phone</string>
-                </property>
-               </item>
-              </widget>
+              <widget class="QComboBox" name="comboQuery"/>
              </item>
             </layout>
            </item>
@@ -1072,6 +1036,13 @@ QTableView{
             <widget class="QPushButton" name="buttonQuery">
              <property name="text">
               <string>Go</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonDelete">
+             <property name="text">
+              <string>Delete</string>
              </property>
             </widget>
            </item>
