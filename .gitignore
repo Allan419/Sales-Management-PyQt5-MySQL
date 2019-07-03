@@ -1,5 +1,4 @@
 test*.py
-func*.py
+func*
 acc*
-*untitled
-GarageSystem-master
+*untitled*
