@@ -666,7 +666,7 @@ QTableView{
            <item row="5" column="3">
             <widget class="QPushButton" name="buttonSubmit">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>1</verstretch>
               </sizepolicy>
